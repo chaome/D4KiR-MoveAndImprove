@@ -259,29 +259,7 @@ MAIHookFunc("GetPlayerLink")
 -- Change
 local oldstrs = {}
 function MAIUpdateChatChannels()
-	local c = 1
-	for i, v in pairs(_G) do
-		if type(v) == "string" and string.find(i, "CHAT_", 1, true) and string.find(i, "_GET", 1, true) then
-			c = c + 1
-			local lang = string.sub( i, 6 )
-			lang = string.sub( lang, 1, string.len( lang ) - 4 )
-			if _G[lang] then
-				if oldstrs[i] == nil then
-					oldstrs[i] = _G[i]
-				end
 
-				if MAIGV("ChatFrame1" .. "chatshortchannels") and not MAIGV( "nochanges" ) then
-					if lang == "CHANNEL" then
-						_G[i] = "%s: "
-					else
-						_G[i] = "[" .. MAIChatOnlyBig( _G[lang] ) .. "] %s: "
-					end
-				elseif oldstrs[i] then
-					_G[i] = oldstrs[i]
-				end
-			end
-		end
-	end
 end
 
 function ChatFrame_ResolvePrefixedChannelName( communityChannel )

@@ -4908,7 +4908,7 @@ local MAIGlowAlpha = 0.75
 
 local LEFTSLOTS = { 2, 3, 4, 5, 6, 10, 16, 20, 18 }
 local RIGHTSLOTS = { 7, 8, 9, 11, 12, 13, 14, 15, 17 }
-local slotbry = 0
+local slotbry = 3
 local slotbrx = 3
 function MAIAddIlvl(SLOT, i)
 	if SLOT and SLOT.info == nil then
@@ -4923,8 +4923,8 @@ function MAIAddIlvl(SLOT, i)
 		SLOT.info:SetFrameLevel( 50 )
 		SLOT.info:SetScript( "OnUpdate", function( self, elapsed ) 
 			if MouseIsOver( SLOT ) then
-				SLOT.text:SetAlpha( 0 )
-				SLOT.texth:SetAlpha( 0 )
+				SLOT.text:SetAlpha( 0.5 )
+				SLOT.texth:SetAlpha( 0.5 )
 			else
 				SLOT.text:SetAlpha( 1 )
 				SLOT.texth:SetAlpha( 1 )
@@ -4938,7 +4938,7 @@ function MAIAddIlvl(SLOT, i)
 		]]
 
 		SLOT.text = SLOT.info:CreateFontString(nil, "OVERLAY")
-		SLOT.text:SetFont(STANDARD_TEXT_FONT, 11, "THINOUTLINE")
+		SLOT.text:SetFont(STANDARD_TEXT_FONT, 15, "THINOUTLINE")
 		SLOT.text:SetShadowOffset(1, -1)
 
 		SLOT.texth = SLOT.info:CreateFontString(nil, "OVERLAY")
@@ -5045,8 +5045,6 @@ local MAIClassIDs = {2, 3, 4, 6, 8}
 local MAISubClassIDs15 = {5, 6} -- 15
 
 function MAISetup()
-	MAIUpdateChatChannels()
-
 	if MAIBUILD ~= "RETAIL" then
 		-- Bag Searchbar
 		BagItemSearchBox = CreateFrame("EditBox", "BagItemSearchBox", ContainerFrame1, "BagSearchBoxTemplate")
@@ -5184,7 +5182,7 @@ function MAISetup()
 		end
 
 		PaperDollFrame.ilvl = PaperDollFrame:CreateFontString(nil, "ARTWORK")
-		PaperDollFrame.ilvl:SetFont(STANDARD_TEXT_FONT, 10, "THINOUTLINE")
+		PaperDollFrame.ilvl:SetFont(STANDARD_TEXT_FONT, 12, "THINOUTLINE")
 		PaperDollFrame.ilvl:SetPoint("TOPLEFT", CharacterWristSlot, "BOTTOMLEFT", 24, -15)
 		PaperDollFrame.ilvl:SetText(ITEM_LEVEL_ABBR .. ": ?")
 
@@ -5205,28 +5203,6 @@ function MAISetup()
 						local t1, t2, rarity, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13 = GetItemInfo(ItemID)
 						local ilvl, _, baseilvl = GetDetailedItemLevelInfo(ItemID)
 						local color = ITEM_QUALITY_COLORS[rarity]
-						local current, maximum = GetInventoryItemDurability(i);
-						if current and maximum then
-							local per = current / maximum
-							if current == maximum then -- 100%
-								SLOT.texth:SetTextColor(0,	1,		0,	1)
-							elseif per == 0.0 then -- = 0%, black
-								SLOT.texth:SetTextColor(0,	0,		0,	1)
-							elseif per < 0.1 then -- < 10%, red
-								SLOT.texth:SetTextColor(1,	0,		0,	1)
-							elseif per < 0.3 then -- < 30%, orange
-								SLOT.texth:SetTextColor(1,	0.65,	0,	1)
-							elseif per < 1 then -- < 100%, red
-								SLOT.texth:SetTextColor(1,	1,		0,	1)
-							end
-							if current ~= maximum then
-								SLOT.texth:SetText(string.format("%0.0f", current / maximum * 100) .. "%")
-							else
-								SLOT.texth:SetText("")
-							end
-						else
-							SLOT.texth:SetText("")
-						end
 						if ilvl and color then
 							if slot == "AmmoSlot" then
 								local COUNT = _G["Character" .. slot .. "Count"]
@@ -5454,9 +5430,7 @@ function MAISetup()
 			end
 		end)
 	end
-
-	MAISetupSortSearchResult()
-
+	
 	if MAIGV( "StanceBar" .. "allclasses" ) == nil then
 		MAISV( "StanceBar" .. "allclasses", true )
 	end
@@ -6170,9 +6144,7 @@ function MAISetup()
 		MAIUpdateStanceBarSize()
 		StanceBar:Show()
 	end
-
-	MAISetupLFG()
-
+	
 	if MAIBUILD ~= "RETAIL" then
 		MAISkinFrame( "WorldMapFrame.BorderFrame", { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } )
 
@@ -6527,81 +6499,6 @@ function MAISetup()
 	end
 end
 
-local MAIPREFIX = "D4MAI"
-local MAICHECKEDVERSION = false
-local function OnEvent(self, event, ...)
-	if event == "CHAT_MSG_ADDON" then
-		local prefix, version, _, target = ...
-		if prefix == MAIPREFIX then
-			local name = MAIUnitName("PLAYER")
-
-			if target == name then --self? -> exit
-				return
-			end
-
-			if version == MAIVERSION then -- if targetversion < as selfversion
-				C_ChatInfo.SendAddonMessage(MAIPREFIX, MAIVERSION, "WHISPER", target) -- send to the target selfversion
-			else
-				if MAICHECKEDVERSION == false then -- check only once, against spam
-					MAICHECKEDVERSION = true
-					
-					MAIMSG("There is a new version available (v" .. version .. ")")
-				end
-			end
-		end
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		local isInitialLogin, isReloadingUi = ...
-		if isInitialLogin or isReloadingUi then
-			C_ChatInfo.RegisterAddonMessagePrefix(MAIPREFIX)
-
-			if IsInRaid(LE_PARTY_CATEGORY_HOME) then
-				C_ChatInfo.SendAddonMessage(MAIPREFIX, MAIVERSION, "RAID")
-			elseif IsInRaid(LE_PARTY_CATEGORY_INSTANCE) or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
-				C_ChatInfo.SendAddonMessage(MAIPREFIX, MAIVERSION, "INSTANCE_CHAT")
-			elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then
-				C_ChatInfo.SendAddonMessage(MAIPREFIX, MAIVERSION, "PARTY")
-			end
-
-			if GetGuildInfo("player") then
-				C_ChatInfo.SendAddonMessage(MAIPREFIX, MAIVERSION, "GUILD")
-			end
-			if MAIBUILD == "RETAIL" then
-				for i = 1, 5 do
-					local id, name = GetChannelName(i)
-					if name ~= nil and (strlower(name) == "lfg" or strlower(name) == "world") then
-						C_ChatInfo.SendAddonMessage(MAIPREFIX, MAIVERSION, "CHANNEL", id)
-					end
-				end
-			end
-		end
-	end
-end
-
-local f = CreateFrame("Frame")
-f:RegisterEvent("CHAT_MSG_ADDON")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
-f:SetScript("OnEvent", OnEvent)
-
-
-
-local function RemoveBadWords(self, event, msg, author, ...)
-	msg = strlower(msg)
-
-	if MAIGV( "blockwords" ) and MAIGV( "blockwords" ) ~= "" and MAIGV( "blockwords" ) ~= " " then
-		for i, v in pairs({string.split(",", MAIGV( "blockwords" ) )}) do
-			if v ~= "" and msg:find(strlower(v)) then
-				return true
-			end
-		end
-	end
-end
-ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", RemoveBadWords)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", RemoveBadWords)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", RemoveBadWords)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", RemoveBadWords)
-
-
-
 function MAIAddRole(tab, role)
 	if tab[role] == nil then
 		tab[role] = {}
@@ -6609,98 +6506,6 @@ function MAIAddRole(tab, role)
 	end
 	tab[role] = tab[role] + 1
 end
-
-function MAISetupSortSearchResult()
-	if LFGListUtil_SortSearchResults then
-		if MAIGV( "maismartfilter" ) == nil then
-			MAISV( "maismartfilter", true )
-		end
-
-		local lfgfilter = CreateFrame( "FRAME", "MAILFGFilter")
-		lfgfilter:RegisterEvent("LFG_LIST_SEARCH_RESULT_UPDATED")
-		hooksecurefunc("LFGListUtil_SortSearchResults", function ( results )
-			if not LFGListFrame.SearchPanel:IsShown() then
-				return
-			end
-
-			local text = LFGListFrame.SearchPanel.SearchBox:GetText()
-			if text == "" then -- ERROR when removing this line
-				return
-			end
-
-			local rTab = {}
-			rTab["TANK"] = 0
-			rTab["HEALER"] = 0
-			rTab["DAMAGER"] = 0
-			local prole = UnitGroupRolesAssigned("PLAYER")
-			if prole == "NONE" then
-				prole= GetSpecializationRole(GetSpecialization())
-			end
-			MAIAddRole(rTab, prole)
-			for i = 1, 4 do
-				MAIAddRole(rTab, UnitGroupRolesAssigned("PARTY" .. i))
-			end
-			
-			local accepted = {}
-			local numAccepted = 0
-			local numResults = #results
-
-			for i = 1, numResults do
-				local accept = true
-				local id = results[i]
-				local info = C_LFGList.GetSearchResultInfo(id)
-				if info then
-					local roles = C_LFGList.GetSearchResultMemberCounts(id);
-					if roles then
-						local rtank = roles.TANK_REMAINING
-						local rheal = roles.HEALER_REMAINING
-						local rdama = roles.DAMAGER_REMAINING
-						if rtank > 0 or rheal > 0 or rdama > 0 then
-							local tank = roles.TANK
-							local heal = roles.HEALER
-							local dama = roles.DAMAGER
-
-							local btank = (tank + rTab["TANK"] <= 1) -- OLD
-							local bheal = (heal + rTab["HEALER"] <= 1) -- OLD
-							local bdama = (dama + rTab["DAMAGER"] <= 3) -- OLD
-
-							btank = rTab["TANK"] <= rtank
-							bheal = rTab["HEALER"] <= rheal
-							bdama = rTab["DAMAGER"] <= rdama
-							
-							if btank and bheal and bdama then
-								-- good
-							else
-								-- bad
-								accept = false
-							end
-						end
-					end
-					
-					if (not MAIGV( "nochanges" ) and MAIGV( "maismartfilter" )) and accept then
-						numAccepted = numAccepted + 1
-						accepted[i] = true
-					else
-						accepted[i] = false
-					end
-				end
-			end
-
-			if not MAIGV( "nochanges" ) and MAIGV( "maismartfilter" ) and numAccepted ~= numResults then
-				for i, v in pairs( results ) do
-					if not accepted[i] then
-						table.remove( results, i )
-					end
-				end
-				LFGListFrame.SearchPanel.totalResults = #results
-				return true
-			end
-		end)
-		--lfgfilter:SetScript("OnEvent", LFGFilterWrong)
-	end
-end
-
-
 
 -- Share UnitXp
 local XPPREFIX = "D4XP"
