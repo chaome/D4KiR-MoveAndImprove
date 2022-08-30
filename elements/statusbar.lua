@@ -144,16 +144,15 @@ function MAISetupStatusBar()
 				--			  "|cAARRGGBB"
 				local textc = "|cFF00FF00" -- Colored
 				local textw = "|r" -- "WHITE"
-				local text = LEVEL .. ": " .. textc .. UnitLevel("PLAYER") .. textw .. "/" .. textc .. maxlevel .. "    " .. textw
-				text = text .. XP .. ": " .. textc .. MAIDottedNumber(currXP) .. textw .. "/" .. textc .. MAIDottedNumber(maxBar) .. " " .. textw .. "(" .. textc .. format("%.2f", percent) .. "%" .. textw .. ")"
+				local text = currXP .. textw .. "/" .. textc .. maxBar
 				if not MAIGV( "nochanges" ) and MAIGV( "MAIStatusBar" .. "missingxp", true ) then
-					text = text .. "    " .. textw .. MAIGT( "missingxp" ) .. ": " .. textc .. MAIDottedNumber(maxBar - currXP)
+					text = text .. "    " .. textw .. MAIGT( "missingxp" ) .. ": " .. textc .. maxBar - currXP
 				end
 				if GetXPExhaustion() and GetXPExhaustion() >= 0 then
 					self.textureFill2:SetAlpha(0.5)
 					local eper = GetXPExhaustion() / maxBar
 					local epercent = eper * 100
-					text = text .. "    " .. textw .. TUTORIAL_TITLE26 .. ": " .. textc .. MAIDottedNumber(GetXPExhaustion()) .. " " .. textw .. "(" .. textc .. format("%.2f", epercent) .. "%" .. textw .. ")"
+					text = text .. " (" .. GetXPExhaustion() .. ")"
 					
 					self.oldperex = MAILerp( self.oldperex, eper, 0.04 )
 					local ew = self.oldperex * self:GetWidth()
@@ -260,7 +259,7 @@ function MAISetupStatusBar()
 			local per = (value - minBar) / (maxBar-minBar)
 			local percent = per * 100
 			if maxBar-minBar > 0 then
-				text = name .. ": " .. textc .. MAIDottedNumber((value - minBar)) .. textw .. "/" .. textc .. MAIDottedNumber((maxBar-minBar)) .. " " .. textw .. "(" .. textc .. format("%.2f", percent) .. "%" .. textw .. ")"
+				text = name .. ": " .. textc .. (value - minBar) .. textw .. "/" .. textc .. (maxBar-minBar)
 
 				self.text:SetText(text) 
 			end
@@ -327,9 +326,9 @@ function MAISetupStatusBar()
 				--			  "|cAARRGGBB"
 				local textc = "|cFF00FF00" -- Colored
 				local textw = "|r" -- WHITE
-				local text = PET .. " - " .. LEVEL .. ": " .. textc .. UnitLevel("PET") .. "    " .. textw
+				local text =  ""
 				if maxBar > 1 then
-					text = text .. XP .. ": " .. textc .. MAIDottedNumber(currXP) .. textw .. "/" .. textc .. MAIDottedNumber(maxBar) .. " " .. textw .. "(" .. textc .. format("%.2f", percent) .. "%" .. textw .. ")"
+					text = text .. currXP .. textw .. "/" .. textc .. maxBar
 				end
 				if per == 0 then
 					per = 0.001
@@ -343,10 +342,8 @@ function MAISetupStatusBar()
 	MAIStatusBar.XPBarPet.Think()
 end
 
-
-
 MAIStatusBar.XPBar = CreateFrame( "FRAME", "XPBar", MAIStatusBar)
-MAIStatusBar.XPBar:SetSize(MAIStatusBar:GetWidth(), 10)
+MAIStatusBar.XPBar:SetSize(MAIStatusBar:GetWidth(), 12)
 hooksecurefunc(MAIStatusBar, "SetWidth", function(self, sw, sh)
 	if MAIGV( "MAIStatusBar" .. "width" ) and MAIGV( "MAIStatusBar" .. "width" ) > 1600 then
 		MAISV( "MAIStatusBar" .. "width", 1600 )
@@ -369,13 +366,11 @@ hooksecurefunc(MAIStatusBar, "SetWidth", function(self, sw, sh)
 end)
 hooksecurefunc(MAIStatusBar, "SetHeight", function(self, sw, sh)
 	MAIStatusBarMover:SetHeight(self:GetHeight())
-	local h = self:GetHeight() / self:GetBarCount()
-	MAIStatusBar.XPBar:SetHeight(h)
-	MAIStatusBar.XPBar.textureFill:SetHeight(h)
-	MAIStatusBar.XPBar.textureFill2:SetHeight(h)
+	MAIStatusBar.XPBar:SetHeight(12)
+	MAIStatusBar.XPBar.textureFill:SetHeight(12)
+	MAIStatusBar.XPBar.textureFill2:SetHeight(12)
 
-	local ts = math.floor(h) - 2
-	MAIStatusBar.XPBar.text:SetFont(STANDARD_TEXT_FONT, ts, "THINOUTLINE")
+	MAIStatusBar.XPBar.text:SetFont(STANDARD_TEXT_FONT, 14, "THINOUTLINE")
 	if MAIGV( "MAIStatusBar" .. "showonlywhenhovered" ) then
 		MAIStatusBar.XPBar.text:Hide()
 	end
@@ -392,14 +387,14 @@ MAIStatusBar.XPBar.texture:SetColorTexture(0, 0, 0)
 
 MAIStatusBar.XPBar.textureFill = MAIStatusBar.XPBar:CreateTexture(nil, "BACKGROUND")
 MAIStatusBar.XPBar.textureFill:SetDrawLayer("BACKGROUND", 5)
-MAIStatusBar.XPBar.textureFill:SetSize(100, 10)
+MAIStatusBar.XPBar.textureFill:SetSize(100, 12)
 MAIStatusBar.XPBar.textureFill:SetPoint("TOPLEFT", MAIStatusBar.XPBar, "TOPLEFT", 0, 0)
 MAIStatusBar.XPBar.textureFill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
 MAIStatusBar.XPBar.textureFill:SetVertexColor(0.25, 0.5, 1.0)
 
 MAIStatusBar.XPBar.textureFill2 = MAIStatusBar.XPBar:CreateTexture(nil, "BACKGROUND")
 MAIStatusBar.XPBar.textureFill2:SetDrawLayer("BACKGROUND", 6)
-MAIStatusBar.XPBar.textureFill2:SetSize(100, 10)
+MAIStatusBar.XPBar.textureFill2:SetSize(100, 12)
 MAIStatusBar.XPBar.textureFill2:SetPoint("LEFT", MAIStatusBar.XPBar.textureFill, "RIGHT", 0, 0)
 MAIStatusBar.XPBar.textureFill2:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
 MAIStatusBar.XPBar.textureFill2:SetVertexColor(0.0, 0.39, 0.88, 0.5)
@@ -411,7 +406,7 @@ for i = 0, 90, 10 do
 end
 
 MAIStatusBar.XPBar.text = MAIStatusBar.XPBar:CreateFontString(nil, "ARTWORK")
-MAIStatusBar.XPBar.text:SetFont(STANDARD_TEXT_FONT, 9, "THINOUTLINE")
+MAIStatusBar.XPBar.text:SetFont(STANDARD_TEXT_FONT, 14, "THINOUTLINE")
 MAIStatusBar.XPBar.text:SetPoint("CENTER", MAIStatusBar.XPBar, "CENTER", 0, 0)
 MAIStatusBar.XPBar.text:SetText("")
 
@@ -433,7 +428,7 @@ end)
 
 
 MAIStatusBar.REPBar = CreateFrame( "FRAME", "REPBar", MAIStatusBar)
-MAIStatusBar.REPBar:SetSize(MAIStatusBar:GetWidth(), 10)
+MAIStatusBar.REPBar:SetSize(MAIStatusBar:GetWidth(), 12)
 hooksecurefunc(MAIStatusBar, "SetWidth", function(self, sw, sh)
 	if MAIGV( "MAIStatusBar" .. "width" ) and MAIGV( "MAIStatusBar" .. "width" ) > 1600 then
 		MAISV( "MAIStatusBar" .. "width", 1600 )
@@ -467,12 +462,11 @@ end
 MAIThinkRepBarBorders()
 
 hooksecurefunc(MAIStatusBar, "SetHeight", function(self, sw, sh)
-	local h = self:GetHeight() / self:GetBarCount()
+	local h = 12
 	MAIStatusBar.REPBar:SetHeight(h)
 	MAIStatusBar.REPBar.textureFill:SetHeight(h)
 
-	local ts = math.floor(h) - 2
-	MAIStatusBar.REPBar.text:SetFont(STANDARD_TEXT_FONT, ts, "THINOUTLINE")
+	MAIStatusBar.REPBar.text:SetFont(STANDARD_TEXT_FONT, 14, "THINOUTLINE")
 	if MAIGV( "MAIStatusBar" .. "showonlywhenhovered" ) then
 		MAIStatusBar.REPBar.text:Hide()
 	end
@@ -489,7 +483,7 @@ MAIStatusBar.REPBar.texture:SetColorTexture(0, 0, 0)
 
 MAIStatusBar.REPBar.textureFill = MAIStatusBar.REPBar:CreateTexture(nil, "BACKGROUND")
 MAIStatusBar.REPBar.textureFill:SetDrawLayer("BACKGROUND", 6)
-MAIStatusBar.REPBar.textureFill:SetSize(100, 10)
+MAIStatusBar.REPBar.textureFill:SetSize(100, 12)
 MAIStatusBar.REPBar.textureFill:SetPoint("TOPLEFT", MAIStatusBar.REPBar, "TOPLEFT", 0, 0)
 MAIStatusBar.REPBar.textureFill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
 
@@ -500,7 +494,7 @@ for i = 0, 90, 10 do
 end
 
 MAIStatusBar.REPBar.text = MAIStatusBar.REPBar:CreateFontString(nil, "ARTWORK")
-MAIStatusBar.REPBar.text:SetFont(STANDARD_TEXT_FONT, 9, "THINOUTLINE")
+MAIStatusBar.REPBar.text:SetFont(STANDARD_TEXT_FONT, 14, "THINOUTLINE")
 MAIStatusBar.REPBar.text:SetPoint("CENTER", MAIStatusBar.REPBar, "CENTER", 0, 0)
 MAIStatusBar.REPBar.text:SetText("")
 
@@ -542,12 +536,10 @@ hooksecurefunc(MAIStatusBar, "SetWidth", function(self, sw, sh)
 	end
 end)
 hooksecurefunc(MAIStatusBar, "SetHeight", function(self, sw, sh)
-	local h = self:GetHeight() / self:GetBarCount()
-	MAIStatusBar.XPBarPet:SetHeight(h)
-	MAIStatusBar.XPBarPet.textureFill:SetHeight(h)
+	MAIStatusBar.XPBarPet:SetHeight(12)
+	MAIStatusBar.XPBarPet.textureFill:SetHeight(12)
 
-	local ts = math.floor(h) - 2
-	MAIStatusBar.XPBarPet.text:SetFont(STANDARD_TEXT_FONT, ts, "THINOUTLINE")
+	MAIStatusBar.XPBarPet.text:SetFont(STANDARD_TEXT_FONT, 14, "THINOUTLINE")
 	if MAIGV( "MAIStatusBar" .. "showonlywhenhovered" ) then
 		MAIStatusBar.XPBarPet.text:Hide()
 	end
@@ -576,7 +568,7 @@ for i = 0, 90, 10 do
 end
 
 MAIStatusBar.XPBarPet.text = MAIStatusBar.XPBarPet:CreateFontString(nil, "ARTWORK")
-MAIStatusBar.XPBarPet.text:SetFont(STANDARD_TEXT_FONT, 9, "THINOUTLINE")
+MAIStatusBar.XPBarPet.text:SetFont(STANDARD_TEXT_FONT, 14, "THINOUTLINE")
 MAIStatusBar.XPBarPet.text:SetPoint("CENTER", MAIStatusBar.XPBarPet, "CENTER", 0, 0)
 MAIStatusBar.XPBarPet.text:SetText("")
 
@@ -629,7 +621,7 @@ local function MAIStatusBarThink()
 			end
 		end
 
-		local h = MAIStatusBar:GetHeight() / MAIStatusBar:GetBarCount()
+		local h = 12
 		if MAIIsXPBarVisible() then
 			MAIStatusBar.XPBar:SetHeight(h)
 			MAIStatusBar.XPBar:Show()
