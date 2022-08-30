@@ -452,13 +452,13 @@ function MAISetupMinimap()
 	-- Blizzard Minimap Buttons Dragging
 	-- ALL
 	MAIConvertToMinimapButton( "MiniMapWorldMapButton", true ) -- WorldMap
-	MAIConvertToMinimapButton( "MiniMapMailFrame" ) -- Mail
+	-- MAIConvertToMinimapButton( "MiniMapMailFrame" ) -- Mail
 
 	-- Retail
 	MAIConvertToMinimapButton( "MiniMapTrackingButton" ) -- Tracking
 	MAIConvertToMinimapButton( "GameTimeFrame", true ) -- Calendar
 	MAIConvertToMinimapButton( "GarrisonLandingPageMinimapButton" ) -- Sanctum
-	MAIConvertToMinimapButton( "QueueStatusMinimapButton" ) -- LFG
+	-- MAIConvertToMinimapButton( "QueueStatusMinimapButton" ) -- LFG
 
 	-- Classic (TBC)
 	if MAIBUILD == "TBC" then -- breaks retail if not checked
