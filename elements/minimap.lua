@@ -22,17 +22,7 @@ local iconsize = 24
 local iconborder = 6
 
 function GetMinimapShape()
-	if not MAIIsCustomMinimapLoaded() then
-		if MAIGV( "Minimap" .. "form" ) ~= nil then
-			if MAIGV( "Minimap" .. "form" ) == "round" or MAIGV( "nochanges" ) then
-				return 'ROUND'
-			else
-				return 'SQUARE'
-			end
-		else
-			return 'ROUND'
-		end
-	end
+	return 'SQUARE'
 end
 
 function MAICreateMinimapButtonsFrame()
@@ -93,11 +83,6 @@ function MAICreateMinimapButtonsFrame()
 		end
 
 		if mmdebug_design then
-			if MiniMapMailFrame then
-				MiniMapMailFrame.Hide = MiniMapMailFrame.Show
-				MiniMapMailFrame:Show()
-			end
-
 			if MiniMapTracking then
 				MiniMapTracking.Hide = MiniMapTracking.Show
 				MiniMapTracking:Show()
@@ -105,11 +90,6 @@ function MAICreateMinimapButtonsFrame()
 			if MiniMapTrackingFrame then
 				MiniMapTrackingFrame.Hide = MiniMapTrackingFrame.Show
 				MiniMapTrackingFrame:Show()
-			end
-
-			if QueueStatusMinimapButton then
-				QueueStatusMinimapButton.Hide = QueueStatusMinimapButton.Show
-				QueueStatusMinimapButton:Show()
 			end
 		end
 
@@ -424,8 +404,6 @@ function MAISetupMinimap()
 		MAISV( "Minimap" .. "minimapbuttons", true )
 	end
 
-
-
 	-- Blizzard Minimap Buttons Dragging, Fix
 	if MiniMapWorldMapButton then
 		if MiniMapWorldMapButton:GetNormalTexture():GetTexture() == 452113 then -- "Interface\\minimap\\UI-Minimap-WorldMapSquare"
@@ -553,30 +531,6 @@ function MAISetupMinimap()
 			self.setpoint = false
 		end)
 		MiniMapChallengeMode:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 0, 0)
-	end
-	
-	if MiniMapInstanceDifficulty ~= nil then
-		hooksecurefunc(MiniMapInstanceDifficulty, "SetPoint", function(self, ...)
-			if self.setpoint then return end
-			self.setpoint = true
-			self:ClearAllPoints()
-			self:SetScale(1)--/Minimap:GetScale())
-			self:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 6, -2)
-			self.setpoint = false
-		end)
-		MiniMapInstanceDifficulty:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 0, 0)
-	end
-
-	if GuildInstanceDifficulty ~= nil then
-		hooksecurefunc(GuildInstanceDifficulty, "SetPoint", function(self, ...)
-			if self.setpoint then return end
-			self.setpoint = true
-			self:ClearAllPoints()
-			self:SetScale(1)--/Minimap:GetScale())
-			self:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 6, -2)
-			self.setpoint = false
-		end)
-		GuildInstanceDifficulty:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 0, 0)
 	end
 
 	if MiniMapBattlefieldFrame then
@@ -747,27 +701,6 @@ function MAISetupMinimap()
 		if GameTimeFrame.GetFontString ~= nil then
 			GameTimeFrame:GetFontString():SetFont(STANDARD_TEXT_FONT, 8)
 		end
-
-		-- Mail indicator
-		MiniMapMailFrame.text = MiniMapMailFrame:CreateFontString(nil, "ARTWORK")
-		MiniMapMailFrame.text:SetFont(STANDARD_TEXT_FONT, 10, "THINOUTLINE")
-		MiniMapMailFrame.text:SetPoint("CENTER", MiniMapMailFrame, "CENTER", 0, 0)
-		MiniMapMailFrame.text:SetText("-1")
-		function MiniMapMailFrame.Think()
-			local n = getn({GetLatestThreeSenders()})
-			if n ~= MiniMapMailFrame.n then
-				MiniMapMailFrame.n = n
-				MiniMapMailFrame.text:SetText(MiniMapMailFrame.n)
-				if n == 0 then
-					--MiniMapMailFrame:Hide()
-				else
-					--MiniMapMailFrame:Show()
-				end
-			end
-			
-			C_Timer.After(1, MiniMapMailFrame.Think)
-		end
-		MiniMapMailFrame.Think()
 		
 		hooksecurefunc(TimeManagerClockButton, "SetPoint", function(self, ...)
 			if self.setpoint then return end
