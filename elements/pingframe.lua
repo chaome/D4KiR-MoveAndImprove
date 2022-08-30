@@ -5,18 +5,18 @@ PingFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, -20)
 
 PingFrame.pinghome = PingFrame:CreateFontString(nil, "ARTWORK")
 PingFrame.pinghome:SetSize(0, 15)
-PingFrame.pinghome:SetFont(STANDARD_TEXT_FONT, 10, "")
+PingFrame.pinghome:SetFont(STANDARD_TEXT_FONT, 12, "")
 PingFrame.pinghome:SetText("")
 PingFrame.pinghome:SetShadowOffset(1, -1)
 
 PingFrame.pingworld = PingFrame:CreateFontString(nil, "ARTWORK")
 PingFrame.pingworld:SetSize(0, 15)
-PingFrame.pingworld:SetFont(STANDARD_TEXT_FONT, 10, "")
+PingFrame.pingworld:SetFont(STANDARD_TEXT_FONT, 12, "")
 PingFrame.pingworld:SetText("")
 PingFrame.pingworld:SetShadowOffset(1, -1)
 
 PingFrame.pinghome:SetPoint("CENTER", PingFrame, "CENTER", 0, 5)
-PingFrame.pingworld:SetPoint("CENTER", PingFrame, "CENTER", 0, -5)
+PingFrame.pingworld:SetPoint("CENTER", PingFrame, "CENTER", 0, -10)
 
 function MAISetupPingFrame()
     function MAIPingThink()
@@ -25,8 +25,8 @@ function MAISetupPingFrame()
         if mover then
             local down, up, lagHome, lagWorld = GetNetStats();
 
-            PingFrame.pinghome:SetText(getglobal("SPELL_TARGET_TYPE6_DESC") .. ": " .. lagHome .. "ms")
-            PingFrame.pingworld:SetText(getglobal("WORLD") .. ": " .. lagWorld .. "ms")
+            PingFrame.pinghome:SetText("Local: " .. lagHome .. "      World: " .. lagWorld)
+            PingFrame.pingworld:SetText("down: " .. string.format("%0.0f", down) .. "kB/s      up: " .. string.format("%0.0f", up) .. "kB/s")
 
             local point, _ , relativePoint = mover:GetPoint()
 
@@ -42,17 +42,17 @@ function MAISetupPingFrame()
                 PingFrame.pingworld:ClearAllPoints()
                 if string.find(point, "RIGHT") then
                     PingFrame.pinghome:SetPoint("RIGHT", PingFrame, "RIGHT", -dist, 5)
-                    PingFrame.pingworld:SetPoint("RIGHT", PingFrame, "RIGHT", -dist, -5)
+                    PingFrame.pingworld:SetPoint("RIGHT", PingFrame, "RIGHT", -dist, -10)
                     PingFrame.pinghome:SetJustifyH("RIGHT")
                     PingFrame.pingworld:SetJustifyH("RIGHT")
                 elseif string.find(point, "LEFT") then
                     PingFrame.pinghome:SetPoint("LEFT", PingFrame, "LEFT", dist, 5)
-                    PingFrame.pingworld:SetPoint("LEFT", PingFrame, "LEFT", dist, -5)
+                    PingFrame.pingworld:SetPoint("LEFT", PingFrame, "LEFT", dist, -10)
                     PingFrame.pinghome:SetJustifyH("LEFT")
                     PingFrame.pingworld:SetJustifyH("LEFT")
                 else
                     PingFrame.pinghome:SetPoint("CENTER", PingFrame, "CENTER", 0, 5)
-                    PingFrame.pingworld:SetPoint("CENTER", PingFrame, "CENTER", 0, -5)
+                    PingFrame.pingworld:SetPoint("CENTER", PingFrame, "CENTER", 0, -10)
                     PingFrame.pinghome:SetJustifyH("CENTER")
                     PingFrame.pingworld:SetJustifyH("CENTER")
                 end
