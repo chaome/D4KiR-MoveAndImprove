@@ -354,28 +354,6 @@ function MAISetupPlayerPowerBarAlt()
 	end
 end
 
-MAIMoneyBar = CreateFrame( "FRAME", "MAIMoneyBar", UIParent )
-MAIMoneyBar:SetSize( 180, 20 )
-MAIMoneyBar:SetPoint( "CENTER" )
-
-function MAISetupMAIMoneyBar()
-	MAIMoneyBar.text = MAIMoneyBar:CreateFontString(nil, "ARTWORK")
-	MAIMoneyBar.text:SetFont(STANDARD_TEXT_FONT, 10, "THINOUTLINE")
-	MAIMoneyBar.text:SetPoint("CENTER", MAIMoneyBar, "CENTER", 0, 0)
-	MAIMoneyBar.text:SetText(GetCoinTextureString(GetMoney()))
-
-	MAIMoneyBar:RegisterEvent("PLAYER_MONEY")
-	MAIMoneyBar:SetScript("OnEvent", function(self, ...)
-		MAIMoneyBar.text:SetText( GetCoinTextureString( GetMoney() ) )
-	end)
-
-	if MAIBUILD ~= "RETAIL" then
-		GOLD_AMOUNT_SYMBOL = "|TInterface\\MoneyFrame\\UI-GoldIcon:12:12:2:0|t"
-		SILVER_AMOUNT_SYMBOL = "|TInterface\\MoneyFrame\\UI-SilverIcon:12:12:2:0|t"
-		COPPER_AMOUNT_SYMBOL = "|TInterface\\MoneyFrame\\UI-CopperIcon:12:12:2:0|t"
-	end
-end
-
 local FACTION_HORDE = 0
 local FACTION_ALLIANCE = 1
 local spirittime = nil
@@ -1318,15 +1296,6 @@ function MAIGetElementList()
 
 	MAIAddElement(
 			{
-			["name"] = "MAIMoneyBar",
-			["lstr"] = "MAIMoneyBar",
-			["setup"] = MAISetupMAIMoneyBar,
-			["nochanges"] = true
-		}
-	)
-
-	MAIAddElement(
-			{
 			["name"] = "UIWidgetTopCenterContainerFrame",
 			["lstr"] = "UIWidgetTopCenter",
 			["setup"] = MAISetupUIWidgetTopCenterContainerFrame,
@@ -1418,24 +1387,6 @@ function MAIGetElementList()
 			["name"] = "GryphonRight",
 			["lstr"] = "gryphonright",
 			["setup"] = MAISetupGryphonRight
-		}
-	)
-
-	MAIAddElement(
-		{
-			["name"] = "GameTooltip",
-			["lstr"] = "tooltip",
-			["setup"] = MAISetupGameTooltip,
-			["sw"] = 60,
-			["sh"] = 60
-		}
-	)
-
-	MAIAddElement(
-		{
-			["name"] = "FPSFrame",
-			["lstr"] = string.upper(getglobal("FPS_ABBR")),
-			["setup"] = MAISetupFPSFrame
 		}
 	)
 
@@ -5045,38 +4996,6 @@ local MAIClassIDs = {2, 3, 4, 6, 8}
 local MAISubClassIDs15 = {5, 6} -- 15
 
 function MAISetup()
-	if MAIBUILD ~= "RETAIL" then
-		-- Bag Searchbar
-		BagItemSearchBox = CreateFrame("EditBox", "BagItemSearchBox", ContainerFrame1, "BagSearchBoxTemplate")
-		BagItemSearchBox:SetSize(110, 18)
-		BagItemSearchBox:SetPoint("TOPLEFT", ContainerFrame1, "TOPLEFT", 50, -30)
-		
-		-- Bag SortButton
-		BagItemAutoSortButton = CreateFrame("Button", "BagItemAutoSortButton", ContainerFrame1)
-		BagItemAutoSortButton:SetSize(16, 16)
-		BagItemAutoSortButton:SetPoint("TOPLEFT", ContainerFrame1, "TOPLEFT", 164, -30)
-		--[[
-		BagItemAutoSortButton:SetNormalTexture("bags-button-autosort-up")
-		BagItemAutoSortButton:SetPushedTexture("bags-button-autosort-down")
-		BagItemAutoSortButton:SetHighlightTexture("Interface/Buttons/ButtonHilight-Square")
-		]]
-		BagItemAutoSortButton:SetScript("OnClick", function(self, ...)
-			PlaySound(SOUNDKIT.UI_BAG_SORTING_01);
-			if SortBags then
-				SortBags();
-			end
-		end)
-		BagItemAutoSortButton:SetScript("OnEnter", function(self, ...)
-			GameTooltip:SetOwner(self);
-			GameTooltip:SetText(BAG_CLEANUP_BAGS);
-			GameTooltip:Show();
-		end)
-		BagItemAutoSortButton:SetScript("OnLeave", function(self, ...)
-			GameTooltip_Hide()
-		end)
-		
-	end
-	
 	if MAICreateMinimapButtonsFrame then
 		MAICreateMinimapButtonsFrame()
 	end
