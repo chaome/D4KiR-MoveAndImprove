@@ -172,15 +172,6 @@ function MAIFrameColorUpdate()
 end
 
 local MAINL = 0
-local MAIStanceBar = CreateFrame( "FRAME", "MAIStanceBar", StanceBar)
-MAIStanceBar:SetSize(30, 30)
-MAIStanceBar:SetPoint("BOTTOMLEFT", StanceBar, "BOTTOMLEFT", 0, 0)
-
-if false then
-	MAIStanceBar.texture = MAIStanceBar:CreateTexture(nil, "BACKGROUND")
-	MAIStanceBar.texture:SetAllPoints(MAIStanceBar)
-	MAIStanceBar.texture:SetColorTexture(0, 1, 0, 0.5)
-end
 
 function MAIIsSpellKnown( spellid, from )
 	if spellid then
@@ -191,69 +182,6 @@ function MAIIsSpellKnown( spellid, from )
 		end
 		return false
 	end
-end
-
-function MAIUpdateStanceBarSize()
-	local maxw = 0
-	local btns = 0
-	local hr = 0
-	local nl = 0
-
-	local list = {}
-	local x = 1
-	local y = 1
-	for i = 1, 40 do
-		local b = _G["MAIStanceButton" .. i]
-		if b and b.spellid1 and MAIIsSpellKnown(b.spellid1, "MAIUpdateStanceBarSize 1") then
-			list[y] = list[y] or {}
-			list[y] = x
-			if b.nl then
-				y = y + 1
-			end
-			x = x + 1
-		end
-	end
-
-	local dir = "RIGHT"
-	for i = 1, 40 do
-		local b = _G["MAIStanceButton" .. i]
-		if b then
-			if (not b.allclassesplus or (b.allclassesplus and MAIGV( "StanceBar" .. "allclassesplus"  ))) then
-				if b.spellid1 and MAIIsSpellKnown(b.spellid1, "MAIUpdateStanceBarSize 2" ) then
-					if b.hr then
-						hr = hr + 1
-					end
-					if b.nl then
-						nl = nl + 1
-						btns = 0
-					end
-					
-					local ofsx = 0
-					local ofsy = MAINL + nl * (30 + MAIGV( "StanceBar" .. "spacing" ))
-					if dir == "RIGHT" then
-						ofsx = btns * 30 + btns * MAIGV( "StanceBar" .. "spacing" ) + hr * MAIGV( "StanceBar" .. "spacing" )
-					end
-					b:SetPoint("BOTTOMLEFT", ofsx, ofsy)
-
-					btns = btns + 1
-					if btns > maxw then
-						maxw = btns
-					end
-				end
-			end
-		else
-			break
-		end
-	end
-
-	local sw = 30 * maxw + MAIGV( "StanceBar" .. "spacing" ) * (maxw - 1) + hr * MAIGV( "StanceBar" .. "spacing" )
-	local sh = 30 + nl * (30 + MAIGV( "StanceBar" .. "spacing" ))
-
-	local localizedClass, englishClass, classIndex = UnitClass("PLAYER")
-	if englishClass == "HUNTER" or englishClass == "SHAMAN" or englishClass == "MAGE" or englishClass == "WARLOCK" then
-		StanceBar:SetSize(sw, sh)
-	end
-	MAIStanceBar:SetSize(sw, sh)
 end
 -- LIBS
 
@@ -1175,14 +1103,6 @@ function MAIGetElementList()
 
 	MAIAddElement(
 			{
-			["name"] = "StanceBar",
-			["lstr"] = "stancebar",
-			["setup"] = MAISetupStanceBar
-		}
-	)
-
-	MAIAddElement(
-			{
 			["name"] = "MultiCastActionBarFrame",
 			["lstr"] = "MultiCastActionBarFrame",
 			["setup"] = MAISetupMultiCastActionBarFrame
@@ -1438,7 +1358,6 @@ local ELESETTINGS = {
 			"ActionBar" .. 9,
 			"ActionBar" .. 10,
 			"PetBar",
-			"StanceBar",
 			"MultiCastActionBarFrame",
 			"ExtraActionButton1",
 			"ZoneAbilityFrame",
@@ -4045,7 +3964,6 @@ function MAIElementSetup(element)
 					for x = 1, MAIMAXBAR do
 						tinsert(bars, "ActionBar" .. x)
 					end
-					tinsert(bars, "StanceBar")
 					tinsert(bars, "PetBar")
 					tinsert(bars, "MAIMicroButtons")
 
@@ -4219,8 +4137,6 @@ function MAIElementSetup(element)
 						mover.tab3.text:SetFont(STANDARD_TEXT_FONT, 8, "THINOUTLINE")
 						mover.tab3.text:SetPoint("CENTER", mover.tab3, "CENTER", 0, 0)
 						mover.tab3.text:SetText(getglobal("BAGSLOT"))
-
-
 
 						-- tab3 - Content
 						mover.tab3.content = CreateFrame( "FRAME", nil, mover.settings)
@@ -4623,76 +4539,6 @@ function MAIElementSetup(element)
 						mover.tab8.content.spacing = MAICreateSlider(mover.tab8.content, element.name, "spacing", MAIGV( element.name .. "spacing" ), 10, -60, 0, 20, 1.0, "1.0d", MAIGT("spacing"))
 					end
 
-					if element.name == "StanceBar" then
-						-- TAB9 - StanceBar
-						mover.tab9 = CreateFrame("Button", nil, mover.settings)
-						mover.tab9:SetSize(100, 20)
-						mover.tab9:SetPoint("TOPLEFT", 210 + 100 + 10, -20)
-						mover.tab9.selected = true
-						mover.tab9:SetScript("OnClick", function(self)
-							mover.settings.SelectTab(mover.tab9)
-						end)
-						tinsert(mover.settings.tabs, mover.tab9)
-
-						mover.tab9.texture = mover.tab9:CreateTexture(nil, "Background")
-						mover.tab9.texture:SetAllPoints(mover.tab9)
-						mover.tab9.texture:SetColorTexture(unpack(MAICOLORBACKGROUNDHEADER))
-
-						mover.tab9.text = mover.tab9:CreateFontString(nil, "ARTWORK")
-						mover.tab9.text:SetFont(STANDARD_TEXT_FONT, 8, "THINOUTLINE")
-						mover.tab9.text:SetPoint("CENTER", mover.tab9, "CENTER", 0, 0)
-						mover.tab9.text:SetText(MAIGT("stancebar"))
-
-
-
-						-- tab9 - Content
-						mover.tab9.content = CreateFrame( "FRAME", nil, mover.settings)
-						mover.tab9.content:SetSize(mover.settings:GetWidth(), mover.settings:GetHeight() - 20)
-						mover.tab9.content:SetPoint("TOPLEFT", 0, -40)
-
-						mover.tab9.content.texture = mover.tab9.content:CreateTexture(nil, "Background")
-						mover.tab9.content.texture:SetAllPoints(mover.tab9.content)
-						mover.tab9.content.texture:SetColorTexture(unpack(MAICOLORBACKGROUNDHEADER))
-
-						if MAIGV( element.name .. "allclasses" ) == nil then
-							MAISV( element.name .. "allclasses", true )
-						end
-
-						local allclasses = CreateFrame("CheckButton", "allclasses", mover.tab9.content, "ChatConfigCheckButtonTemplate")
-						allclasses:SetSize(20, 20)
-						allclasses:SetPoint("TOPLEFT", 10, -10)
-						allclasses:SetChecked(MAIGV( element.name .. "allclasses" ) )
-						allclasses:SetScript("OnClick", function(self)
-							local newval = self:GetChecked()
-							MAISV( element.name .. "allclasses", newval )
-
-							if MAIUpdateStanceBarSize then
-								MAIUpdateStanceBarSize()
-							end
-						end)
-						allclasses.text = allclasses:CreateFontString(nil, "ARTWORK")
-						allclasses.text:SetFont(STANDARD_TEXT_FONT, 8, "THINOUTLINE")
-						allclasses.text:SetPoint("LEFT", allclasses, "RIGHT", 0, 0)
-						allclasses.text:SetText(MAIGT("allclasses"))
-
-						local allclassesplus = CreateFrame("CheckButton", "allclassesplus", mover.tab9.content, "ChatConfigCheckButtonTemplate")
-						allclassesplus:SetSize(20, 20)
-						allclassesplus:SetPoint("TOPLEFT", 10, -40)
-						allclassesplus:SetChecked(MAIGV( element.name .. "allclassesplus" ) )
-						allclassesplus:SetScript("OnClick", function(self)
-							local newval = self:GetChecked()
-							MAISV( element.name .. "allclassesplus", newval )
-
-							if MAIUpdateStanceBarSize then
-								MAIUpdateStanceBarSize()
-							end
-						end)
-						allclassesplus.text = allclassesplus:CreateFontString(nil, "ARTWORK")
-						allclassesplus.text:SetFont(STANDARD_TEXT_FONT, 8, "THINOUTLINE")
-						allclassesplus.text:SetPoint("LEFT", allclassesplus, "RIGHT", 0, 0)
-						allclassesplus.text:SetText(MAIGT("allclassesplus"))
-					end
-
 					if element.name == "PlayerFrame" then
 						-- TAB10 - PlayerFrame
 						mover.tab10 = CreateFrame("Button", nil, mover.settings)
@@ -4882,12 +4728,6 @@ function MAIAddIlvl(SLOT, i)
 			end
 		end )
 
-		--[[
-		SLOT.info.texture = SLOT:CreateTexture( nil, "BACKGROUND" )
-		SLOT.info.texture:SetAllPoints( SLOT.info )
-		SLOT.info.texture:SetVertexColor( 0.75, 0.75, 0.75, 0.5 )
-		]]
-
 		SLOT.text = SLOT.info:CreateFontString(nil, "OVERLAY")
 		SLOT.text:SetFont(STANDARD_TEXT_FONT, 15, "THINOUTLINE")
 		SLOT.text:SetShadowOffset(1, -1)
@@ -4896,22 +4736,8 @@ function MAIAddIlvl(SLOT, i)
 		SLOT.texth:SetFont(STANDARD_TEXT_FONT, 9, "THINOUTLINE")
 		SLOT.texth:SetShadowOffset(1, -1)
 
-		SLOT.border = SLOT.info:CreateTexture(nil, "OVERLAY", SLOT.info)
-		SLOT.border:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
-		SLOT.border:SetBlendMode("ADD")
-		SLOT.border:SetAlpha(MAIGlowAlpha)
-
 		SLOT.text:SetPoint( "TOP", SLOT.info, "TOP", 0, -slotbry )
 		SLOT.texth:SetPoint( "BOTTOM", SLOT.info, "BOTTOM", 0, slotbry )
-
-		local NormalTexture = _G[SLOT:GetName() .. "NormalTexture"]
-		if NormalTexture then
-			local sw, sh = NormalTexture:GetSize()
-			SLOT.border:SetWidth(sw)
-			SLOT.border:SetHeight(sh)
-		end
-
-		SLOT.border:SetPoint("CENTER")
 	end
 end
 
@@ -5142,24 +4968,20 @@ function MAISetup()
 								if color.r == 1 and color.g == 1 and color.b == 1 then
 									alpha = alpha - 0.2
 								end
-								SLOT.border:SetVertexColor(color.r, color.g, color.b, alpha)
 								--SLOT.info:Show()
 							else
 								SLOT.text:SetText("")
 								SLOT.texth:SetText("")
-								SLOT.border:SetVertexColor(1, 1, 1, 0)
 								--SLOT.info:Hide()
 							end
 						else
 							SLOT.text:SetText("")
 							SLOT.texth:SetText("")
-							SLOT.border:SetVertexColor(1, 1, 1, 0)
 							--SLOT.info:Hide()
 						end
 					else
 						SLOT.text:SetText("")
 						SLOT.texth:SetText("")
-						SLOT.border:SetVertexColor(1, 1, 1, 0)
 						--SLOT.info:Hide()
 					end
 				end
@@ -5247,21 +5069,17 @@ function MAISetup()
 										if color.r == 1 and color.g == 1 and color.b == 1 then
 											alpha = alpha - 0.2
 										end
-										SLOT.border:SetVertexColor(color.r, color.g, color.b, alpha)
 										--SLOT.info:Show()
 									else
 										SLOT.text:SetText("")
-										SLOT.border:SetVertexColor(1, 1, 1, 0)
 										--SLOT.info:Hide()
 									end
 								else
 									SLOT.text:SetText("")
-									SLOT.border:SetVertexColor(1, 1, 1, 0)
 									--SLOT.info:Hide()
 								end
 							else
 								SLOT.text:SetText("")
-								SLOT.border:SetVertexColor(1, 1, 1, 0)
 								--SLOT.info:Hide()
 							end
 						end
@@ -5329,384 +5147,24 @@ function MAISetup()
 							if color.r == 1 and color.g == 1 and color.b == 1 then
 								alpha = alpha - 0.2
 							end
-							SLOT.border:SetVertexColor(color.r, color.g, color.b, alpha)
+							--SLOT.border:SetVertexColor(color.r, color.g, color.b, alpha)
 							--SLOT.info:Show()
 						else
 							SLOT.text:SetText("")
-							SLOT.border:SetVertexColor(1, 1, 1, 0)
 							--SLOT.info:Hide()
 						end
 					else
 						SLOT.text:SetText("")
-						SLOT.border:SetVertexColor(1, 1, 1, 0)
 						--SLOT.info:Hide()
 					end
 				else
 					SLOT.text:SetText("")
-					SLOT.border:SetVertexColor(1, 1, 1, 0)
 					--SLOT.info:Hide()
 				end
 			end
 		end)
 	end
-	
-	if MAIGV( "StanceBar" .. "allclasses" ) == nil then
-		MAISV( "StanceBar" .. "allclasses", true )
-	end
-	if MAIGV( "StanceBar" .. "allclassesplus" ) == nil then
-		MAISV( "StanceBar" .. "allclassesplus", false )
-	end
 
-	local dragframe = nil
-	local dragspellid1 = 0
-	local dragspellid2 = 0
-
-	local stanceid = 1
-	function MAIAddStanceButton(spell1, spell2, hr, allclassesplus, nl)
-		local spellid1 = spell1.spellid
-		local art1 = spell1.art
-		local db = spell1.db
-
-		local spellid2 = spell2.spellid or spell1.spellid
-		local art2 = spell2.art or spell1.art
-
-		if spellid1 == nil and art1 == nil then
-			MAINL = MAINL + 1
-		else
-			if spellid1 == 687 then -- WARLOCK ARMOR
-				if MAIIsSpellKnown(706, "MAIAddStanceButton WARLOCK") then
-					spellid1 = 706 -- UPGRADE ARMOR
-				end
-			end
-			if spellid1 == 168 then -- MAGE ARMOR
-				if MAIIsSpellKnown(7302, "MAIAddStanceButton MAGE") then
-					spellid1 = 7302 -- UPGRADE ARMOR
-				end
-			end
-
-			if MAIGV( "StanceBar" .. "Enabled" ) and MAIGV( "StanceBar" .. "allclasses" ) then
-				local spellname1, _, texture1 = GetSpellInfo(spellid1)
-				local spellname2, _, texture2 = GetSpellInfo(spellid2)
-				
-				local b = CreateFrame("CheckButton", "MAIStanceButton" .. stanceid, MAIStanceBar, "SecureActionButtonTemplate") --"SecureActionButtonTemplate")--"ActionBarButtonTemplate")
-				b.spellid1 = spellid1
-				b.spellid2 = spellid2
-				b.art1 = art1
-				b.art2 = art2
-				b.db = db
-				b.hr = hr
-				b.nl = nl
-				b.allclassesplus = allclassesplus or false
-				b:SetWidth(30)
-				b:SetHeight(30)
-
-				b:SetAttribute("*type1", "spell")
-				b:SetAttribute("spell1", spellname1)
-				b:SetAttribute("*type2", "spell")
-				b:SetAttribute("spell2", spellname2)
-
-				b:RegisterForClicks("AnyUp")
-
-				function b:SetSpell(sid1, sid2)
-					local name1, _, texture1 = GetSpellInfo(sid1)
-					local name2, _, texture2 = GetSpellInfo(sid2)
-					b.Icon:SetTexture(texture1)
-					b.spellid1 = sid1
-					b.spellid2 = sid2
-
-					b:SetAttribute("spell1", name1)
-					b:SetAttribute("spell2", name2)
-					
-					local sbsid1 = 0
-					local i = 1
-					while true do
-						local spellName, _, spellID = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-						if spellName and spellName == name1 and spellID and MAIIsSpellKnown( spellID, "SetSpell #1" ) then --strfind(spellName, spellname) then
-							sbsid1 = spellID
-						elseif (not spellName) then
-							break
-						end
-						i = i + 1
-					end
-					b.sbsid1 = sbsid1
-
-					local sbsid2 = 0
-					i = 1
-					while true do
-						local spellName, _, spellID = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-						if spellName and spellName == name2 and spellID and MAIIsSpellKnown( spellID, "SetSpell #2" ) then --strfind(spellName, spellname) then
-							sbsid2 = spellID
-						elseif (not spellName) then
-							break
-						end
-						i = i + 1
-					end
-					b.sbsid2 = sbsid2
-
-					b.db[1] = sid1
-					b.db[2] = sid2
-				end
-
-				b:RegisterForDrag("LeftButton")
-				b:SetScript("OnDragStart", function(self, ...)
-					if ( LOCK_ACTIONBAR ~= "1" or IsModifiedClick("PICKUPACTION") ) then
-						dragspellid1 = self.spellid1
-						dragspellid2 = self.spellid2
-						dragframe = self
-						PickupSpell(self.spellid1)
-						self.Icon:SetTexture(nil)
-					end
-				end)
-				b:SetScript("OnReceiveDrag", function(self, ...)
-					if self ~= dragframe and dragspellid1 and dragframe and self.art == dragframe.art then
-						-- change drag
-						dragframe:SetSpell(self.spellid1, self.spellid2)
-
-						-- change target
-						self:SetSpell(dragspellid1, dragspellid2)
-
-						dragframe = nil
-						dragspellid1 = nil
-						dragspellid2 = nil
-
-						-- reset mouse
-						ClearCursor()
-					elseif dragframe then
-						if self.art then
-							print("|cFFFF0000" .. "WRONG SLOT (", self.art , ")")
-						end
-						dragframe:SetSpell(dragspellid1, dragspellid2)
-
-						dragframe = nil
-						dragspellid1 = nil
-						dragspellid2 = nil
-					end
-				end)
-				b:HookScript("OnUpdate", function(self)
-					if IsMouseButtonDown("RightButton") or IsMouseButtonDown("LeftButton") then
-						if dragframe == self then
-							C_Timer.After(0.01, function()
-								if dragframe == self and not GetCursorInfo() then
-									dragframe:SetSpell(dragspellid1, dragspellid2)
-
-									dragframe = nil
-									dragspellid1 = nil
-									dragspellid2 = nil
-								end
-							end)
-						end
-					end
-				end)
-
-				b.Icon = b:CreateTexture(nil, "BACKGROUND")
-				--b.Icon:SetDrawLayer("BACKGROUND", 7)
-				b.Icon:SetSize(30, 30)
-				b.Icon:SetPoint("CENTER", 0, 0)
-				b.Icon:SetTexture(texture)
-				local br = 0.056
-				b.Icon:SetTexCoord(br, 1 - br, br, 1 - br)
-
-				b.InnerGlow = b:CreateTexture(nil, "ARTWORK")
-				--b.InnerGlow:SetDrawLayer("ARTWORK", 6)
-				b.InnerGlow:SetSize(36, 36)
-				b.InnerGlow:SetPoint("CENTER", -0.5, 0)
-				b.InnerGlow:SetAtlas( "bags-newitem", false )--"Interface/SpellActivationOverlay/IconAlert")
-				b.InnerGlow:SetBlendMode("ADD")
-				b.InnerGlow:SetAlpha(0.0)
-
-				b.cooldown = CreateFrame("Cooldown", "MAIStanceButton" .. stanceid .. "Cooldown", b, "CooldownFrameTemplate")
-				b.cooldown:SetSize(18, 18)
-				b.cooldown:SetAllPoints(b)
-				b.cooldown:SetHideCountdownNumbers(false)
-				b.cooldown:SetReverse(true)
-
-				b.NormalTexture2 = b:CreateTexture(nil, "ARTWORK")
-				--b.NormalTexture2:SetDrawLayer("ARTWORK", 7)
-				b.NormalTexture2:SetSize(54, 54)
-				b.NormalTexture2:SetPoint("CENTER", 0, 0)
-				b.NormalTexture2:SetTexture("Interface/Buttons/UI-Quickslot2")
-				MAIRegisterUIColor(b.NormalTexture2)
-
-				b.text = b:CreateFontString(nil, "ARTWORK")
-				b.text:SetFont(STANDARD_TEXT_FONT, 10, "THINOUTLINE")
-				b.text:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", 0, 0)
-				b.text:SetText("")
-
-				b.spellstate = false
-
-				function b:MAIThink()
-					if MAIIsSpellKnown(spellid1, "MAIThink") and MAIGV( "StanceBar" .. "allclasses" ) and (not b.allclassesplus or (b.allclassesplus and MAIGV( "StanceBar" .. "allclassesplus" ) )) then
- 						local spellname1, _, texture1 = GetSpellInfo(b.spellid1)
-						local spellname2, _, texture2 = GetSpellInfo(b.spellid2)
-						local start, dura = b.start, b.dura
-
-						local sbsid1 = 0
-						local sbsid2 = 0
-
-						local i = 1
-						while true do
-							local spellName, test, spellID = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-							if spellName and spellName == spellname1 and spellID and MAIIsSpellKnown( spellID, "SetSpell #3" ) then --strfind(spellName, spellname) then
-								sbsid1 = spellID
-							elseif (not spellName) then
-								break
-							end
-							i = i + 1
-						end
-						b.sbsid1 = sbsid1
-
-						if spellname2 then
-							i = 1
-							while true do
-								local spellName, test, spellID = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-								if spellName and spellName == spellname2 and spellID and MAIIsSpellKnown( spellID, "SetSpell #4" ) then --strfind(spellName, spellname) then
-									sbsid2 = spellID
-								elseif (not spellName) then
-									break
-								end
-								i = i + 1
-							end
-							b.sbsid2 = sbsid2
-						end
-
-						spellname1, _, texture1 = GetSpellInfo(b.sbsid1)
-						spellname2, _, texture2 = GetSpellInfo(b.sbsid2)
-						
-						local hasbuff = false
-						for i = 1, 40 do
-							local name, t2, t3, t4, duration, expirationTime, t7, t8, t9, spe = UnitBuff("PLAYER", i)
-							if name ~= nil and name == spellname2 and sbsid2 == spe then
-								hasbuff = 1
-								start = expirationTime - duration
-								dura = duration
-								b.Icon:SetTexture(texture2)
-								break
-							elseif name == nil then
-								break
-							end
-						end
-						if not hasbuff then
-							for i = 1, 40 do
-								local name, t2, t3, t4, duration, expirationTime, t7, t8, t9, spe = UnitBuff("PLAYER", i)
-								if name ~= nil and name == spellname1 and sbsid1 == spe then
-									hasbuff = 1
-									start = expirationTime - duration
-									dura = duration
-									b.Icon:SetTexture(texture1)
-									break
-								elseif name == nil then
-									break
-								end
-							end
-						end
-						if not hasbuff then
-							b.Icon:SetTexture(texture1)
-						end
-
-						if spellname1 and UnitExists("PET") and UnitCreatureFamily("PET") then
-							if string.find(spellname1, UnitCreatureFamily("PET")) then
-								hasbuff = 1
-							end
-						end
-
-						for i = 1, 4 do
-							local haveTotem, totemName, startTime, duration = GetTotemInfo(i)
-							if haveTotem and totemName and spellname1 and string.find(totemName, spellname1) then
-								start = startTime
-								dura = duration
-								hasbuff = 2
-								break
-							end
-						end
-
-						if MAIBUILD ~= "RETAIL" then
-							if b.soulstone and GetItemCount(6265) then -- soulstone
-								b.text:SetText(GetItemCount(6265))
-							elseif b.hellstone then
-								b.text:SetText(GetItemCount(5565))
-							end
-						end
-
-						if start and dura then
-							b.cooldown:SetReverse(true)
-							CooldownFrame_Set(b.cooldown, start, dura, true )
-						else
-							start, dura = GetSpellCooldown(b.sbsid1)
-							if start then
-								b.cooldown:SetReverse(false)
-								CooldownFrame_Set(b.cooldown, start, dura, true )
-							else
-								CooldownFrame_Clear(b.cooldown)
-							end
-						end
-						
-						local isUsable, notEnoughMana = IsUsableSpell(b.sbsid1)
-						if ( isUsable ) then
-							b.Icon:SetVertexColor(1.0, 1.0, 1.0);
-						elseif ( notEnoughMana ) then
-							b.Icon:SetVertexColor(0.5, 0.5, 1.0);
-						else
-							b.Icon:SetVertexColor(0.4, 0.4, 0.4);
-						end
-
-						if b.InnerGlow then
-							if hasbuff == 2 then
-								b.InnerGlow:SetAlpha(1.0)
-							elseif hasbuff == 1 then
-								b.InnerGlow:SetAlpha(1.0)
-								--b.Icon:SetTexture(136116)
-							else
-								b.InnerGlow:SetAlpha(0.0)
-							end
-						end
-						if not InCombatLockdown() then
-							b:Show()
-						end
-					else
-						if not InCombatLockdown() then
-							b:Hide()
-						end
-					end
-
-					if b.spellstate ~= MAIIsSpellKnown(spellid1, "spellstate 2.1") then
-						b.spellstate = MAIIsSpellKnown(spellid1, "spellstate 2.2")
-						MAIUpdateStanceBarSize()
-					end
-
-					C_Timer.After(0.1, b.MAIThink)
-				end
-				b:MAIThink()
-
-				b:SetScript("OnEnter", function(self, ...)
-					local spellname1, _, texture1 = GetSpellInfo(b.spellid1)
-					GameTooltip:SetOwner(self, "ANCHOR_TOP")
-					local spellbookid = 0
-					local i = 1
-					while true do
-						local spell, spellSub, spellid = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-						if spellid and spellid == b.spellid1 then
-							spellbookid = i
-						elseif (not spell) then
-							break
-						end
-						i = i + 1
-					end
-					if MAIIsSpellKnown(spellid1, "OnEnter") and spellbookid > 0 then
-						GameTooltip:SetSpellBookItem(spellbookid, BOOKTYPE_SPELL);
-						GameTooltip:Show()
-					end
-				end)
-				b:SetScript("OnLeave", function(self, ...)
-					GameTooltip:Hide()
-				end)
-
-				stanceid = stanceid + 1
-
-				return b
-			end
-			return nil
-		end
-	end
 	local localizedClass, englishClass, classIndex = UnitClass("PLAYER")
 	if MAIGV( "CLASSES" ) == nil then
 		MAISV( "CLASSES", {} )
@@ -5760,33 +5218,6 @@ function MAISetup()
 			MAIGV( "CLASSES" )["MAGE"][5][3] = {30482, "shield", true} -- Glühende Rüstung
 		end
 
-		local oldi = 0
-		for i, v in pairs( MAIGV( "CLASSES" )["MAGE"] ) do
-			local hr = false
-			for x, tab in pairs(v) do
-				hr = false
-				if i ~= oldi and MAIIsSpellKnown(tab[1], "MAGE") then
-					oldi = i
-					hr = true
-				end
-				-- spell1, spell2, hr, allclassesplus, nl
-				MAIAddStanceButton(
-					{
-						["spellid"] = tab[1],
-						["art"] = tab[2],
-						["db"] = MAIGV( "CLASSES" )["MAGE"][i][x]
-					},{
-						["spellid"] = tab[4],
-						["art"] = tab[5],
-					},
-					hr,
-					tab[3]
-				)
-			end
-		end
-
-		MAIUpdateStanceBarSize()
-		StanceBar:Show()
 	elseif englishClass == "HUNTER" then
 		if MAIGV( "CLASSES" )["HUNTER"] == nil then
 			MAIGV( "CLASSES" )["HUNTER"] = {}
@@ -5828,34 +5259,6 @@ function MAISetup()
 			--MAIMakeStanceButton(19879, nil, true )) -- Drachkin
 		end
 
-		local oldi = 0
-		for i, v in pairs(MAIGV( "CLASSES" )["HUNTER"] ) do
-			local hr = false
-			for x, tab in pairs(v) do
-				hr = false
-				
-				if i ~= oldi and tab[1] and MAIIsSpellKnown(tab[1], "HUNTER") then
-					oldi = i
-					hr = true
-				end
-				-- spell1, spell2, hr, allclassesplus, nl
-				MAIAddStanceButton(
-					{
-						["spellid"] = tab[1],
-						["art"] = tab[2],
-						["db"] = MAIGV( "CLASSES" )["HUNTER"][i][x]
-					},
-					{
-						
-					},
-					hr,
-					tab[3]
-				)
-			end
-		end
-
-		MAIUpdateStanceBarSize()
-		StanceBar:Show()
 	elseif englishClass == "SHAMAN" then
 		if MAIGV( "CLASSES" )["SHAMAN"] == nil then
 			MAIGV( "CLASSES" )["SHAMAN"] = {}
@@ -5908,37 +5311,6 @@ function MAISetup()
 			MAIGV( "CLASSES" )["SHAMAN"][1][9] = {192058, "air"} -- [RETAIL] Energiespeicherung
 			MAIGV( "CLASSES" )["SHAMAN"][1][10] = {98008, "air"} -- [RETAIL] Geisterbindung
 		end
-
-		if MultiCastActionBarFrame == nil then
-			local oldi = 0
-			for i, v in pairs(MAIGV( "CLASSES" )["SHAMAN"] ) do
-				local nl = false
-				for x, totem in pairs(v) do
-					nl = false
-					if i ~= oldi and MAIIsSpellKnown(totem[1], "SHAMAN") then
-						oldi = i
-						nl = true
-					end
-					-- spell1, spell2, hr, allclassesplus, nl
-					MAIAddStanceButton(
-						{
-							["spellid"] = totem[1],
-							["art"] = totem[2],
-							["db"] = MAIGV( "CLASSES" )["SHAMAN"][i][x]
-						},
-						{
-							
-						},
-						nil,
-						nil,
-						nl
-					)
-				end
-			end
-
-			MAIUpdateStanceBarSize()
-			StanceBar:Show()
-		end
 	elseif englishClass == "WARLOCK" then
 		if MAIGV( "CLASSES" )["WARLOCK"] == nil then
 			MAIGV( "CLASSES" )["WARLOCK"] = {}
@@ -5976,39 +5348,6 @@ function MAISetup()
 			MAIGV( "CLASSES" )["WARLOCK"][5][4] = {132, "buff", true} -- Unsichtbarkeit entdecken
 		end
 
-		local oldi = 0
-		for i, v in pairs( MAIGV( "CLASSES" )["WARLOCK"] ) do
-			local hr = false
-			for x, tab in pairs(v) do
-				hr = false
-				if i ~= oldi and MAIIsSpellKnown(tab[1], "WARLOCK") then
-					oldi = i
-					hr = true
-				end
-				local b = MAIAddStanceButton(
-					{
-						["spellid"] = tab[1],
-						["art"] = tab[2],
-						["db"] = MAIGV( "CLASSES" )["WARLOCK"][i][x]
-					},
-					{
-						
-					},
-					hr,
-					tab[3]
-				)
-				if b then
-					if tab[1] == 1122 then
-						b.hellstone = true
-					elseif b and i < 6 then
-						b.soulstone = true
-					end
-				end
-			end
-		end
-
-		MAIUpdateStanceBarSize()
-		StanceBar:Show()
 	elseif englishClass == "PALADIN" then
 		if MAIGV( "CLASSES" )["PALADIN"] == nil then
 			MAIGV( "CLASSES" )["PALADIN"] = {}
@@ -6033,35 +5372,6 @@ function MAISetup()
 			
 			MAIGV( "CLASSES" )["PALADIN"][3] = {}
 		end
-
-		local oldi = 0
-		for i, v in pairs( MAIGV( "CLASSES" )["PALADIN"] ) do
-			local nl = false
-			for x, buff in pairs(v) do
-				nl = false
-				if i ~= oldi and buff[1] and MAIIsSpellKnown(buff[1], "PALADIN") then
-					oldi = i
-					nl = true
-				end
-				MAIAddStanceButton(
-					{
-						["spellid"] = buff[1],
-						["art"] = buff[2],
-						["db"] = MAIGV( "CLASSES" )["PALADIN"][i][x]
-					},
-					{
-						["spellid"] = buff[4],
-						["art"] = buff[5]
-					},
-					nil,
-					buff[3],
-					nl
-				)
-			end
-		end
-
-		MAIUpdateStanceBarSize()
-		StanceBar:Show()
 	end
 	
 	if MAIBUILD ~= "RETAIL" then

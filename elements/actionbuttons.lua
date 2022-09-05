@@ -18,7 +18,6 @@ RELINK["MultiBarLeft"] = "ActionBar4"
 RELINK["MultiBarBottomRight"] = "ActionBar5"
 RELINK["MultiBarBottomLeft"] = "ActionBar6"
 RELINK["PetActionBarFrame"] = "PetBar"
-RELINK["StanceBarFrame"] = "StanceBar"
 --RELINK["OverrideAction"] = "ActionBar10"
 
 local MAIAB = {}
@@ -248,31 +247,6 @@ function MAIUpdateActionButton()
 	local h = 0
 	local rows = 0
 
-	if StanceBar then
-		local cou = 0
-		if GetNumShapeshiftForms() > 0 then
-			cou = GetNumShapeshiftForms()
-		else
-			cou = NUM_STANCE_SLOTS
-		end
-		MAISV( "StanceBar" .. "count", cou )
-		
-		count = MAIGV( "StanceBar" .. "count" )
-		if type(MAIGV( "StanceBar" .. "rows" )) and MAIGV( "StanceBar" .. "rows" ) == "max" then
-			rows = cou
-		else
-			rows = MAIGV( "StanceBar" .. "rows" )
-		end
-		c = count / rows
-
-		spacing = MAIGV( "StanceBar" .. "spacing" )
-		w = MAIMathR(_G["StanceButton1"]:GetWidth()) * c + spacing * (c - 1)
-		h = MAIMathR(_G["StanceButton1"]:GetHeight()) * (count / c) + spacing * (count / c - 1)
-
-		if StanceBar.SetSize and not InCombatLockdown() then
-			StanceBar:SetSize(w, h)
-		end
-	end
 	for x = 1, MAIMAXBAR do
 		if _G["ActionBar" .. x] then
 			count = MAIGV( "ActionBar" .. x .. "count" )
@@ -304,7 +278,6 @@ function MAIUpdateActionButton()
 		end
 	end
 
-	MAISV( "StanceBar" .. "row", 0 )
 	for x = 1, MAIMAXBAR do
 		MAISV( "ActionBar" .. x .. "row", 0 )
 	end
@@ -318,69 +291,6 @@ function MAIUpdateActionButton()
 
 	MAISV( "PetBar" .. "row", 0 )
 	for i = 1, 12 do
-		if i > 1 and MAIGV( "StanceBar" .. "Enabled" ) and MAIGV( "StanceBar" .. "move" ) then
-			if _G["StanceButton" .. i] ~= nil then
-				local cou = 0
-				if GetNumShapeshiftForms() > 0 then
-					cou = GetNumShapeshiftForms()
-				else
-					cou = NUM_STANCE_SLOTS
-				end
-				count = MAIGV( "StanceBar" .. "count" )			
-				if type(MAIGV( "StanceBar" .. "rows" )) and MAIGV( "StanceBar" .. "rows" ) == "max" then
-					rows = cou
-				else
-					rows = MAIGV( "StanceBar" .. "rows" )
-				end
-
-				local dir = GetFlyOutDirection(rows, MAIGV( "StanceBar" .. "point" ))
-				if _G["StanceButton" .. i].hidehooked == nil then
-					_G["StanceButton" .. i].hidehooked = true
-					_G["StanceButton" .. i]._mai_i = i
-					if _G["StanceButton" .. i].hooked == nil then
-						_G["StanceButton" .. i].hooked = true
-						hooksecurefunc(_G["StanceButton" .. i], "Show", function(self, ...)
-							if self._mai_i > MAIGV( "StanceBar" .. "count" ) then
-								if self:IsShown() and not InCombatLockdown() then
-									self:Hide()
-								else
-									self:SetAlpha( 0 )
-								end
-							end
-						end)
-					end
-				end
-				if i > MAIGV( "StanceBar" .. "count" ) then
-					if _G["StanceButton" .. i]:IsShown() and not InCombatLockdown() then
-						_G["StanceButton" .. i]:Hide()
-					end
-				else
-					if not _G["StanceButton" .. i]:IsShown() and not InCombatLockdown() then
-						_G["StanceButton" .. i]:Show()
-					end
-					local cou = 0
-					if GetNumShapeshiftForms() > 0 then
-						cou = GetNumShapeshiftForms()
-					else
-						cou = NUM_STANCE_SLOTS
-					end			
-					
-					if i > 1 then
-						if (i-1) % (MAIGV( "StanceBar" .. "count" ) / rows) == 0 then
-							MAISV( "StanceBar" .. "row", MAIGV( "StanceBar" .. "row" ) + 1 )
-							_G["StanceButton" .. i]:ClearAllPoints()
-							_G["StanceButton" .. i]:SetPoint("LEFT", _G["StanceButton" .. 1], "RIGHT", -_G["StanceButton" .. 1]:GetWidth(), -(MAIGV( "StanceBar" .. "row" ) * _G["StanceButton" .. 1]:GetHeight() + (MAIGV( "StanceBar" .. "row" )) * MAIGV( "StanceBar" .. "spacing" )))
-						else
-							_G["StanceButton" .. i]:ClearAllPoints()
-							_G["StanceButton" .. i]:SetPoint("LEFT", _G["StanceButton" .. i - 1], "RIGHT", MAIGV( "StanceBar" .. "spacing" ), 0)
-						end
-					end
-					_G["StanceButton" .. 1]:SetAttribute("flyoutDirection", dir)
-					_G["StanceButton" .. i]:SetAttribute("flyoutDirection", dir)
-				end
-			end
-		end
-
 		if _G["PetBar"] ~= nil and MAIGV( "PetBar" .. "Enabled" ) and MAIGV( "PetBar" .. "move" ) and i <= 10 then
 			if _G["PetActionButton" .. i].hidehooked == nil then
 				_G["PetActionButton" .. i].hidehooked = true
@@ -528,15 +438,6 @@ function MAIActionbarsCheckDefault()
 		end
 	end
 
-	if MAIGV( "StanceBar" .. "rows" ) == nil then
-		MAISV( "StanceBar" .. "rows", 1 )
-	end
-	if MAIGV( "StanceBar" .. "hidena" ) == nil then
-		MAISV( "StanceBar" .. "hidena", false )
-	end
-	if MAIGV( "StanceBar" .. "hidehk" ) == nil then
-		MAISV( "StanceBar" .. "hidehk", false )
-	end
 	for x = 1, MAIMAXBAR do
 		if MAIGV( "ActionBar" .. x .. "rows" ) == nil then
 			MAISV( "ActionBar" .. x .. "rows", 1 )
@@ -551,9 +452,6 @@ function MAIActionbarsCheckDefault()
 	if MAIGV( "PetBar" .. "hidehk" ) == nil then
 		MAISV( "PetBar" .. "hidehk", false )
 	end
-	if MAIGV( "StanceBar" .. "spacing" ) == nil then
-		MAISV( "StanceBar" .. "spacing", 4 )
-	end
 	for x = 1, MAIMAXBAR do
 		if MAIGV( "ActionBar" .. x .. "spacing" ) == nil then
 			MAISV( "ActionBar" .. x .. "spacing", 4 )
@@ -563,9 +461,6 @@ function MAIActionbarsCheckDefault()
 		MAISV( "PetBar" .. "spacing", 4 )
 	end
 
-	if MAIGV( "StanceBar" .. "count" ) == nil then
-		MAISV( "StanceBar" .. "count", 1 )
-	end
 	for x = 1, MAIMAXBAR do
 		if MAIGV( "ActionBar" .. x .. "count" ) == nil then
 			MAISV( "ActionBar" .. x .. "count", 12 )
